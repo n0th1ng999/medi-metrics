@@ -1,4 +1,4 @@
-import { User } from "../database/index.js";
+import { User } from "../../database/index.js";
 import { GraphQLError } from "graphql";
 /* User{
 			id: ID!
