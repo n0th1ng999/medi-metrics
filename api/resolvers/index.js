@@ -1,119 +1,229 @@
-import { User } from "../../database/index.js";
-import { GraphQLError } from "graphql";
-/* User{
-			id: ID!
-		   name: String!
-		   email: String!
-		   password: String!
-		   age: Int
-		   gender: String
-		   healthRecords: [HealthRecord]
-		   goals: [HealthGoal]
-}
-*/
+import { Department, Nurse, Bed, Patient } from "../database/index.js";
 
 export default {
-	Query: {
-		// User Read
-		getUserById: async (_, { id }) => {
-			try {
-				console.log(id);
-				const user = await User.findById(id);
-
-				if (!user) {
-					throw new GraphQLError(
-						"User not found, Id does not appear to exist in the database"
-					);
-				}
-
-				return user;
-			} catch (error) {
-				return new GraphQLError(`${error}`);
-			}
-		},
-	},
+	Query: {},
 	Mutation: {
-		// User Create, Update, Delete
-		createUser: async (_, { userRegisterInput }) => {
+		// * Nurses ✅
+		/**
+		 * * Done ✅
+		 * @param {*} _
+		 * @param {{nurseInput: {
+		 * citizenCard: String
+		 * name: String
+		 * email: String
+		 * password: String
+		 * assignedDepartmentId: String
+		 * }}} input
+		 * @returns {{success: Boolean, message: String}}
+		 */
+		createNurse: async (_, { nurseInput }) => {
 			try {
-				const userExists = await User.findOne({
-					email: userRegisterInput.email,
+				const {
+					citizenCardNumber,
+					name,
+					email,
+					password,
+					assignedDepartmentId,
+				} = nurseInput;
+
+				const newNurse = new Nurse({
+					citizenCardNumber,
+					name,
+					email,
+					password,
 				});
 
-				if (userExists) {
-					throw new GraphQLError("Email already exists in the database");
+				// if assignedDepartment Id is provided then try to assign Nurse
+				if (assignedDepartmentId) {
+					// the Department
+					const departmentToAssign = await Department.findById(
+						assignedDepartmentId
+					);
+
+					// if department exists and is not already full
+					if (departmentToAssign) {
+						departmentToAssign.nurses.push(newNurse._id);
+						await departmentToAssign.save();
+					} else {
+						return {
+							success: false,
+							message:
+								"Department does not exist, Nurse account was not created",
+						};
+					}
 				}
 
-				const newUser = new User(userRegisterInput);
-
-				const savedUser = await newUser.save();
-
-				return savedUser;
+				await newNurse.save();
+				return { success: true, message: "Nurse created successfully" };
 			} catch (error) {
-				throw new GraphQLError(`${error}`);
+				return { success: false, message: error.message };
 			}
 		},
-		updateUser: async (_, { id, updateUserInput }) => {
+		/**
+		 * * Done ✅
+		 * @param {*} _
+		 * @param {{id:String}} input
+		 * @returns {success: Boolean, message: String}}
+		 */
+		deleteNurse: async (_, { id }) => {
 			try {
-				const updatedUser = await User.findByIdAndUpdate(
-					id,
-					{ ...updateUserInput },
-					{
-						new: true,
-					}
-				);
+				const deletedNurse = await Nurse.findByIdAndDelete(id);
 
-				return updatedUser;
+				if (!deletedNurse) {
+					return { success: false, message: "Nurse not found" };
+				}
+
+				return { success: true, message: "Deletion Successful" };
 			} catch (error) {
-				throw new GraphQLError(`${error}`);
+				return { success: false, message: `Error: ${error}` };
 			}
 		},
-		deleteUser: async (_, { id }) => {
-			const result = { success: true, message: "Successfully Deleted" };
 
+		// * Patients ✅
+		/**
+		 * * Done ✅
+		 * @param {*} _ 
+		 * @param {{patientInput: {
+				citizenCardNumber: String
+				name: String
+				age: Number
+				address: String
+				gender: String
+				phone: String
+			}}} param1 
+		 * @returns 
+		 */
+		createPatient: async (_, { patientInput }) => {
 			try {
-				const res = await User.findByIdAndDelete(id);
+				const newPatient = new Patient(patientInput);
+
+				await newPatient.save();
+
+				return { success: true, message: "Patient created" };
+			} catch (error) {
+				return { success: false, message: error.message };
+			}
+		},
+		/**
+		 * * Done ✅
+		 * @param {*} _
+		 * @param {{id:String}} param1
+		 * @returns
+		 */
+		deletePatient: async (_, { id }) => {
+			try {
+				const res = await Patient.findByIdAndDelete(id);
 
 				if (!res) {
-					result.success = false;
-					result.message = `User not found, Id (${id}) does not appear to exist in the database`;
+					return { success: false, message: "Patient not found" };
 				}
-
-				return result;
+				return { success: true, message: "Deletion Successful" };
 			} catch (error) {
-				throw new GraphQLError(`${error}`);
+				return { success: false, message: `Error: ${error}` };
 			}
 		},
-
-		// Retrieve JWT token for authentication purposes
-		loginUser: async (_, { loginUserInput }) => {
-			const { password, email } = loginUserInput;
-
-			try {
-				const user = await User.findOne({ email });
-
-				if (!user) {
-					throw new GraphQLError("User not found");
-				}
-
-				const isMatch = await user.comparePassword(password);
-
-				if (!isMatch) {
-					throw new GraphQLError("Invalid password");
-				}
-
-				const token = user.generateToken();
-				return token;
-			} catch (error) {
-				throw new GraphQLError(`${error}`);
-			}
-		},
-
-		// Create a Health Record
-
 		
+		// todo Health Records ❌
 
+		// * Departments ✅
+		/**
+		 * * Done ✅
+		 * @param {*} _
+		 * @param {{name:String}} input
+		 */
+		createDepartment: async (_, { name }) => {
+			try {
+				const newDepartment = new Department({ name });
 
-	
+				await newDepartment.save();
+
+				return { success: true, message: "Department created successfully" };
+			} catch (error) {
+				return { success: false, message: error.message };
+			}
+		},
+		/**
+		 * * Done ✅
+		 * @param {*} _
+		 * @param {{id:String}} input
+		 */
+		deleteDepartment: async (_, { id }) => {
+			try {
+				const deletedDepartment = await Department.findByIdAndDelete(id);
+
+				if (!deletedDepartment) {
+					return { success: false, message: "Department not found" };
+				}
+
+				return { success: true, message: "Deletion Successful" };
+			} catch (error) {
+				return { success: false, message: `Error: ${error}` };
+			}
+		},
+
+		// Todo Beds ❌
+		/**
+		 * * Done ✅
+		 * @param {*} _
+		 * @param {{departmentId:String, location:String}} input
+		 */
+		createBed: async (_, { departmentId, location }) => {
+			try {
+				// Check if bed already exists in the specified department location
+				const bedExistenceCheck = await Bed.findOne({
+					departmentId,
+					location,
+				});
+
+				if (bedExistenceCheck) {
+					return {
+						success: false,
+						message: "The bed already exists in the department",
+					};
+				}
+
+				const department = await Department.findById(departmentId);
+
+				if (!department) {
+					return { success: false, message: "Department not found" };
+				}
+
+				const newBed = new Bed({ location, departmentId: department._id });
+
+				await newBed.save();
+
+				return { success: true, message: "Bed created successfully" };
+			} catch (error) {
+				return { success: false, message: error.message };
+			}
+		},
+		/**
+		 * * Done ✅
+		 * @param {*} _
+		 * @param {{departmentId:String, bedId:String}} input
+		 */
+		deleteBed: async (_, { id }) => {
+			try {
+				const res = await Bed.findByIdAndDelete(id);
+
+				if (!res) {
+					return { success: false, message: "Bed not found" };
+				}
+
+				return { success: true, message: "Bed deleted successfully" };
+			} catch (error) {
+				return { success: false, message: `Error: ${error}` };
+			}
+		},
+
+		/**
+		 * Todo assign a patient to a bed ❌
+		 */
+		assignPatientToBed: (_, { bedId, patientId }) => {},
+
+		/**
+		 * Todo unassign a patient from a bed ❌
+		 */
+		unassignPatientFromBed: (_, { bedId, patientId }) => {},
 	},
 };

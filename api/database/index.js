@@ -1,3 +1,6 @@
-import User from "./user.js";
+import Nurse from "./nurse.js";
+import Patient from "./patient.js";
+import Department from "./department.js";
+import Bed from "./bed.js";
 
-export { User };
+export { Nurse, Patient, Department, Bed };
