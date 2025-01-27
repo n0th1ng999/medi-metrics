@@ -1,5 +1,9 @@
 import { Department, Nurse, Bed, Patient } from "../database/index.js";
 
+import { PubSub } from "graphql-subscriptions";
+
+const pubsub = new PubSub();
+
 const PatientResolver = {
     Query: {
         /* 
