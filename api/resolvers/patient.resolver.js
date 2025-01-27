@@ -53,6 +53,90 @@ const PatientResolver = {
 				return { success: false, message: `Error: ${error}` };
 			}
 		},
+        // todo Health Records ❌
+		/**
+		 * * Done ✅
+		 *   type HealthRecord {
+				dateTime: ID!
+				heartRate: Int
+				bloodPressure: BloodPressure
+				glucoseLevel: Float
+				cholesterolLevel: Float
+				weight: Float
+			}
+		 * @param {*} _ 
+		 * @param {{patientId: String, healthRecordInput:{
+		 * dateTime: String
+            * heartRate: Number
+            * bloodPressure: {systolic: Number, diastolic:Number}
+            * glucoseLevel: Number
+            * cholesterolLevel: Number
+            * weight: Number
+            * }}} param1 
+            */
+           addHealthRecord: async (_, { patientId, healthRecordInput }) => {
+               try {
+                   const {
+                       dateTime = Date.now(),
+                       heartRate,
+                       bloodPressure,
+                       glucoseLevel,
+                       clipboardLevel,
+                       weight,
+                   } = healthRecordInput;
+   
+                   const patient = await Patient.findById(patientId);
+   
+                   if (!patient) {
+                       return { success: false, message: "Patient not found" };
+                   }
+   
+                   if (!patient.healthRecords) {
+                       patient.healthRecords = [];
+                   }
+   
+                   patient.healthRecords.push({
+                       dateTime,
+                       heartRate,
+                       bloodPressure,
+                       glucoseLevel,
+                       clipboardLevel,
+                       weight,
+                   });
+   
+                   await patient.save();
+   
+                   return { success: true, message: "Health record added" };
+               } catch (error) {
+                   return { success: false, message: error.message };
+               }
+           },
+           // Delete Health Record ✅
+           deleteHealthRecord: async (_, { patientId, dateTime }) => {
+               try {
+                   const patient = await Patient.findById(patientId);
+   
+                   if (!patient) {
+                       return { success: false, message: "Patient not found" };
+                   }
+   
+                   const healthRecordIndex = patient.healthRecords.findIndex(
+                       (record) => record.dateTime.getTime() === new Date(dateTime).getTime()
+                   );
+   
+                   if (healthRecordIndex === -1) {
+                       return { success: false, message: "Health record not found" };
+                   }
+   
+                   patient.healthRecords.splice(healthRecordIndex, 1);
+   
+                   await patient.save();
+   
+                   return { success: true, message: "Health record deleted" };
+               } catch (error) {
+                   return { success: false, message: `Error: ${error}` };
+               }
+           },
     }
 }
 

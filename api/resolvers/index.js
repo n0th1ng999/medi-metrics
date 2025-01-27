@@ -13,11 +13,7 @@ export default {
 	Query: {
 		/**
 
-        """Get Available Beds"""
-        getAvailableBeds(departmentID: ID!): [Bed]
-
-		
-		getBeds(departmentID: ID)
+        
 		 
 
 		*/
