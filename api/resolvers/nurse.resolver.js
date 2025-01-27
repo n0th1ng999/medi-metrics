@@ -6,7 +6,7 @@ const NurseResolver = {
         // done :check:
         getNurseById: async(_, {nurseId}) => {
             try {
-                console.log(nurseId);
+                //console.log(nurseId);
                 const nurse = await Nurse.findById(nurseId); 
                 if (!nurse) {
                     throw new GraphQLError("Nurse not found")
