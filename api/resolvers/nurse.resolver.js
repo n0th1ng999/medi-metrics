@@ -1,13 +1,13 @@
 import { Department, Nurse, Bed, Patient } from "../database/index.js";
+import { GraphQLError } from 'graphql'
 
 const NurseResolver = {
 	Query: {
+        
+
 		/**
 		 * "" Get Nurse information by ID"""
         getNurseById(nurseId: ID!): Nurse 
-
-        """ Login Nurse """
-        loginNurse(email: String!, password: String!): String # JWT TOKEN
 		*/
 	},
 	Mutation: {
