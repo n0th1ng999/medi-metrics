@@ -1,8 +1,8 @@
 import { ApolloServer } from "apollo-server";
 import typeDefs from "./schemas/index.js";
 import resolvers from "./resolvers/index.js";
+import context from "./context/index.js";
 import mongoDbConnect from "./database/connect.js";
-
 try {
 	mongoDbConnect();
 } catch (error) {
@@ -10,7 +10,11 @@ try {
 	process.exit(1);
 }
 
-const server = new ApolloServer({ typeDefs, resolvers });
+const server = new ApolloServer({
+	typeDefs,
+	resolvers,
+	context,
+});
 
 server.listen().then(({ url }) => {
 	console.log(`Server ready at ${url}`);
