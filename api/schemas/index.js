@@ -150,4 +150,8 @@ export default `#graphql
         assignPatientToBed(patientId: ID!, bedId: ID!): Result
         unassignPatientFromBed(bedId: ID!): Result
     }
+
+    type Subscription{
+        getCurrentHealthRecord(patientCitizenNumber: ID!): HealthRecord
+    }
 `;
