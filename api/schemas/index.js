@@ -20,7 +20,8 @@ export default `#graphql
     type Bed {
         id: ID!
         location: String!
-        patient: Patient
+        patientId: ID!
+        departmentId: ID!
     }
    
     #   type SensorAvailability {
@@ -133,7 +134,7 @@ export default `#graphql
 
         # Health Record
         addHealthRecord(patientId: ID!, healthRecordInput: HealthRecordInput): Result
-        deleteHealthRecord(id: ID!): Result
+        deleteHealthRecord(patientId: ID!, dateTime: ID!): Result
 
         # Department
         createDepartment(name: String!): Result

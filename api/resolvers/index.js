@@ -1,7 +1,29 @@
 import { Department, Nurse, Bed, Patient } from "../database/index.js";
 
 export default {
-	Query: {},
+	Query: {
+		/**
+		 * "" Get Nurse information by ID"""
+        getNurseById(nurseId: ID!): Nurse 
+
+        """ Login Nurse """
+        loginNurse(email: String!, password: String!): String # JWT TOKEN
+
+        """Get Available Beds"""
+        getAvailableBeds(departmentID: ID!): [Bed]
+
+		
+		getBeds(departmentID: ID)
+
+       """ Get Patient information by ID"""
+        getPatientById(patientId: ID!): Patient
+
+        """ Get Patient Health records """
+        getPatientHealthRecords(patientId: ID!, startDate: String, endDate: String ): [HealthRecord]
+		 
+
+		*/
+	},
 	Mutation: {
 		// * Nurses ✅
 		/**
@@ -122,8 +144,91 @@ export default {
 				return { success: false, message: `Error: ${error}` };
 			}
 		},
-		
+
 		// todo Health Records ❌
+		/**
+		 * * Done ✅
+		 *   type HealthRecord {
+				dateTime: ID!
+				heartRate: Int
+				bloodPressure: BloodPressure
+				glucoseLevel: Float
+				cholesterolLevel: Float
+				weight: Float
+			}
+		 * @param {*} _ 
+		 * @param {{patientId: String, healthRecordInput:{
+		 * dateTime: String
+		 * heartRate: Number
+		 * bloodPressure: {systolic: Number, diastolic:Number}
+		 * glucoseLevel: Number
+		 * cholesterolLevel: Number
+		 * weight: Number
+		 * }}} param1 
+		 */
+		addHealthRecord: async (_, { patientId, healthRecordInput }) => {
+			try {
+				const {
+					dateTime = Date.now(),
+					heartRate,
+					bloodPressure,
+					glucoseLevel,
+					clipboardLevel,
+					weight,
+				} = healthRecordInput;
+
+				const patient = await Patient.findById(patientId);
+
+				if (!patient) {
+					return { success: false, message: "Patient not found" };
+				}
+
+				if (!patient.healthRecords) {
+					patient.healthRecords = [];
+				}
+
+				patient.healthRecords.push({
+					dateTime,
+					heartRate,
+					bloodPressure,
+					glucoseLevel,
+					clipboardLevel,
+					weight,
+				});
+
+				await patient.save();
+
+				return { success: true, message: "Health record added" };
+			} catch (error) {
+				return { success: false, message: error.message };
+			}
+		},
+		// Delete Health Record ✅
+		deleteHealthRecord: async (_, { patientId, dateTime }) => {
+			try {
+				const patient = await Patient.findById(patientId);
+
+				if (!patient) {
+					return { success: false, message: "Patient not found" };
+				}
+
+				const healthRecordIndex = patient.healthRecords.findIndex(
+					(record) => record.dateTime.getTime() === new Date(dateTime).getTime()
+				);
+
+				if (healthRecordIndex === -1) {
+					return { success: false, message: "Health record not found" };
+				}
+
+				patient.healthRecords.splice(healthRecordIndex, 1);
+
+				await patient.save();
+
+				return { success: true, message: "Health record deleted" };
+			} catch (error) {
+				return { success: false, message: `Error: ${error}` };
+			}
+		},
 
 		// * Departments ✅
 		/**
@@ -217,13 +322,78 @@ export default {
 		},
 
 		/**
-		 * Todo assign a patient to a bed ❌
+		 * Todo assign a patient to a bed
+		 * * Verification and creation logic ✅
+		 * ! Authentication for nurses (JWT verify) ❌
 		 */
-		assignPatientToBed: (_, { bedId, patientId }) => {},
+		assignPatientToBed: async (_, { bedId, patientId }) => {
+			try {
+				const checkPatientBed = await Bed.findOne({ patientId: patientId });
+
+				if (checkPatientBed) {
+					return {
+						success: false,
+						message: "Patient is already assigned to a bed",
+					};
+				}
+
+				const bed = await Bed.findById(bedId);
+
+				if (!bed) {
+					return { success: false, message: "Bed not found" };
+				}
+
+				if (bed.patientId) {
+					return { success: false, message: "Bed is already occupied" };
+				}
+
+				const patient = await Patient.findById(patientId);
+
+				if (!patient) {
+					return { success: false, message: "Patient does not exist" };
+				}
+
+				bed.patientId = patientId;
+
+				await bed.save();
+
+				return {
+					success: true,
+					message: "Patient assigned to bed successfully",
+				};
+			} catch (error) {
+				return { success: false, message: `Error: ${error}` };
+			}
+		},
 
 		/**
-		 * Todo unassign a patient from a bed ❌
+		 * Todo unassign a patient from a bed
+		 *  * Deletion logic ✅
+		 * ! Authentication for nurses (JWT verify) ❌
 		 */
-		unassignPatientFromBed: (_, { bedId, patientId }) => {},
+		unassignPatientFromBed: async (_, { bedId }) => {
+			try {
+				const bed = await Bed.findById(bedId);
+
+				if (!bed) {
+					return { success: false, message: "Bed not found" };
+				}
+
+				if (!bed.patientId) {
+					return { success: false, message: "Bed is not occupied" };
+				}
+
+				bed.patientId = null;
+
+				await bed.save();
+
+				return {
+					success: true,
+					message: "Patient unassigned from bed successfully",
+				};
+			} catch (error) {
+				return { success: false, message: `Error: ${error}` };
+			}
+		},
 	},
 };

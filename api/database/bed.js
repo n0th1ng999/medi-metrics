@@ -5,7 +5,7 @@ import mongoose from "mongoose";
     type Bed {
         id: ID!
         location: String!
-        patient: Patient
+        patientId: ID!
         departmentId: ID!
     }
  * 
@@ -13,7 +13,7 @@ import mongoose from "mongoose";
 
 const bedSchema = mongoose.Schema({
 	location: { type: String , required: true},
-	patient: {
+	patientId: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: "Patient",
 		required: false,
