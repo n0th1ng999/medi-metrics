@@ -1,10 +1,23 @@
 import { Department, Nurse, Bed, Patient } from "../database/index.js";
-import { GraphQLError } from 'graphql'
+import { graphql, GraphQLError } from 'graphql'
 
 const NurseResolver = {
     Query: {
+        // done :check:
+        getNurseById: async(_, {nurseId}) => {
+            try {
+                console.log(nurseId);
+                const nurse = await Nurse.findById(nurseId); 
+                if (!nurse) {
+                    throw new GraphQLError("Nurse not found")
+                }
+                return nurse
+            } catch (error) {
+                console.log(error)
+                throw new GraphQLError("Server error")
+            }
+        }
         
-
         /**
 		 * "" Get Nurse information by ID"""
         getNurseById(nurseId: ID!): Nurse 
