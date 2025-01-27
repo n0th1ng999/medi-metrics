@@ -18,12 +18,6 @@ export default {
 
 		
 		getBeds(departmentID: ID)
-
-       """ Get Patient information by ID"""
-        getPatientById(patientId: ID!): Patient
-
-        """ Get Patient Health records """
-        getPatientHealthRecords(patientId: ID!, startDate: String, endDate: String ): [HealthRecord]
 		 
 
 		*/
