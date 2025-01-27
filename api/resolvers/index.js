@@ -7,16 +7,11 @@ import PatientResolver from "./patient.resolver.js";
 
 import { mergeResolvers } from "@graphql-tools/merge";
 
-resolvers = mergeResolvers([DepartmentResolver, BedResolver, NurseResolver, PatientResolver])
+//resolvers = mergeResolvers([DepartmentResolver, BedResolver, NurseResolver, PatientResolver])
 
 export default {
 	Query: {
 		/**
-		 * "" Get Nurse information by ID"""
-        getNurseById(nurseId: ID!): Nurse 
-
-        """ Login Nurse """
-        loginNurse(email: String!, password: String!): String # JWT TOKEN
 
         """Get Available Beds"""
         getAvailableBeds(departmentID: ID!): [Bed]
