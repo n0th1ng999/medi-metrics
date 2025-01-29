@@ -1,13 +1,14 @@
 import { Department, Nurse, Bed, Patient } from "../database/index.js";
-import { GraphQLError } from 'graphql'
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { GraphQLError } from "graphql";
 
 const NurseResolver = {
 	Query: {
-        
-
 		/**
+		 *  
 		 * "" Get Nurse information by ID"""
-        getNurseById(nurseId: ID!): Nurse 
+        	getNurseById(nurseId: ID!): Nurse 
 		*/
 	},
 	Mutation: {
@@ -33,11 +34,13 @@ const NurseResolver = {
 					assignedDepartmentId,
 				} = nurseInput;
 
+				const hashedPassword = await bcrypt.hash(password, 10);
+
 				const newNurse = new Nurse({
 					citizenCardNumber,
 					name,
 					email,
-					password,
+					password: hashedPassword,
 				});
 
 				// if assignedDepartment Id is provided then try to assign Nurse
@@ -95,16 +98,16 @@ const NurseResolver = {
 					throw new Error("Nurse email does not exist");
 				}
 
-				const isValidPassword = await nurse.verifyPassword(password);
+				const isValidPassword = await nurse.comparePassword(password);
 
 				if (!isValidPassword) {
 					throw new Error("Invalid password");
 				}
-
-				return jwt.sign({ id: nurse._id }, "secretKey", { expiresIn: "1h" });
+			
+				return jwt.sign({ id: nurse.id }, "secret", { expiresIn: "1h" });
 			} catch (error) {
-                throw new Error(error.message);
-            }
+				throw new Error(error.message);
+			}
 		},
 	},
 };

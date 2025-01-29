@@ -22,15 +22,6 @@ const nurseSchema = mongoose.Schema({
 	name: { type: String, required: true },
 });
 
-nurseSchema.pre("save", async function (next) {
-	// Only hash the password if it has been modified (or is new)
-	if (this.isModified("password")) {
-		this.password = bcrypt.hash(this.password, 10);
-	}
-
-	next();
-});
-
 nurseSchema.method({
 	comparePassword: async function (inputPassword) {
 		// Compare input password to the encrypted password
