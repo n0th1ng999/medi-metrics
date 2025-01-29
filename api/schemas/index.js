@@ -76,9 +76,6 @@ export default `#graphql
         """ Get Nurse information by ID"""
         getNurseById(nurseId: ID!): Nurse 
 
-        """ Login Nurse """
-        loginNurse(email: String!, password: String!): String # JWT TOKEN
-
         """Get Available Beds"""
         getAvailableBeds(departmentID: ID!): [Bed]
 
@@ -131,7 +128,10 @@ export default `#graphql
         createNurse(nurseInput: NurseInput): Result
         # updateNurse(id: ID!, nurseInput: NurseInput ): Result
         deleteNurse(id: ID!): Result
-        
+
+        """ Login Nurse """
+        loginNurse(email: String!, password: String!): String # JWT TOKEN
+
         # Patient 
         createPatient(patientInput: PatientInput): Result
         # updatePatient(id: ID!, patientInput: PatientInput ): Result
