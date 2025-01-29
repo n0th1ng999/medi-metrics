@@ -50,12 +50,17 @@ export default `#graphql
         A User has multiple health records
     """
     type HealthRecord {
-        dateTime: ID!
+        dateTime: ID! #? Para quê se é preenchida de forma automática?
         heartRate: Int
         bloodPressure: BloodPressure
         glucoseLevel: Float
         cholesterolLevel: Float
         weight: Float
+    }
+
+    type PatientHealthRecord{
+        patientId: ID!
+        healthRecord: HealthRecord
     }
 
     """
@@ -69,16 +74,16 @@ export default `#graphql
     ########################################################################
     type Query {
         """ Get Nurse information by ID"""
-        getNurseById(nurseId: ID!): Nurse 
+        getNurseById(nurseId: ID!): Nurse # ✅
 
         """Get Available Beds"""
-        getAvailableBeds(departmentID: ID!): [Bed]
+        getAvailableBeds(departmentID: ID!): [Bed] # ❌
 
        """ Get Patient information by ID"""
-        getPatientById(patientId: ID!): Patient
+        getPatientById(patientId: ID!): Patient # ❌
 
         """ Get Patient Health records """
-        getPatientHealthRecords(patientId: ID!, startDate: String, endDate: String ): [HealthRecord]
+        getPatientHealthRecords(patientId: ID!, startDate: String, endDate: String ): [HealthRecord] # ❌
     }
 
     "Result object determines the success status of a mutation or query operation [success, message]"
@@ -120,38 +125,39 @@ export default `#graphql
 
     type Mutation {
         # Nurse 
-        createNurse(nurseInput: NurseInput): Result
+        createNurse(nurseInput: NurseInput): Result # ✅
         # updateNurse(id: ID!, nurseInput: NurseInput ): Result
-        deleteNurse(id: ID!): Result
+        deleteNurse(id: ID!): Result # ✅
 
         """ Login Nurse """
-        loginNurse(email: String!, password: String!): String # JWT TOKEN
+        loginNurse(email: String!, password: String!): String # JWT TOKEN ✅
 
-        # Patient 
+        # Patient ✅
         createPatient(patientInput: PatientInput): Result
-        # updatePatient(id: ID!, patientInput: PatientInput ): Result
+        # updatePatient(id: ID!, patientInput: PatientInput ): Result ✅
         deletePatient(id: ID!): Result
 
-        # Health Record
+        # add Health Record ✅
         addHealthRecord(patientId: ID!, healthRecordInput: HealthRecordInput): Result
+        # delete Health Record ✅
         deleteHealthRecord(patientId: ID!, dateTime: ID!): Result
 
-        # Department
+        # Department ✅
         createDepartment(name: String!): Result
-        # updateDepartment(id: ID!, name: String!): Result
+        # updateDepartment(id: ID!, name: String!): Result ✅
         deleteDepartment(id: ID!): Result
 
-        # Bed
+        # Bed ✅
         createBed(departmentId: ID!, location: String!): Result
         # updateBed(id: ID!, departmentId: ID,  location: String): Result
         deleteBed(id: ID!): Result
 
-        # Assign Patient to Bed
+        # Assign Patient to Bed ✅
         assignPatientToBed(patientId: ID!, bedId: ID!): Result
         unassignPatientFromBed(bedId: ID!): Result
     }
 
     type Subscription{
-        getCurrentHealthRecord(patientCitizenNumber: ID!): HealthRecord
+        currentHealthRecords: [PatientHealthRecord] # ✅
     }
 `;

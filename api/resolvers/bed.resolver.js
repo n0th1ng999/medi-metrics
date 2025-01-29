@@ -1,17 +1,17 @@
 import { Department, Nurse, Bed, Patient } from "../database/index.js";
 
 const BedResolver = {
-    Query: {
-        /* 
+	Query: {
+		/* 
         """Get Available Beds"""
         getAvailableBeds(departmentID: ID!): [Bed]
 
 		
 		getBeds(departmentID: ID)
         */
-    },
-    Mutation: {
-        /**
+	},
+	Mutation: {
+		/**
 		 * * Done ✅
 		 * @param {*} _
 		 * @param {{departmentId:String, location:String}} input
@@ -66,18 +66,21 @@ const BedResolver = {
 		},
 
 		/**
-		 * Todo assign a patient to a bed
 		 * * Verification and creation logic ✅
-		 * ! Authentication for nurses (JWT verify) ❌
+		 * * Authentication for nurses (JWT verify) ✅
 		 */
-		assignPatientToBed: async (_, { bedId, patientId }) => {
+		assignPatientToBed: async (_, { bedId, patientId }, context) => {
 			try {
-				const checkPatientBed = await Bed.findOne({ patientId: patientId });
+				const nurse = await context.verifyNurse();
 
-				if (checkPatientBed) {
+				const nurseDepartment = await Department.findOne({
+					nurses: { $in: nurse.id },
+				});
+
+				if (!nurseDepartment) {
 					return {
 						success: false,
-						message: "Patient is already assigned to a bed",
+						message: "Nurse does not belong to any department",
 					};
 				}
 
@@ -87,8 +90,18 @@ const BedResolver = {
 					return { success: false, message: "Bed not found" };
 				}
 
+				if (bed?.departmentId != nurseDepartment.id) {
+					return {
+						success: false,
+						message: "Bed does not belong to the nurse's department",
+					};
+				}
+
 				if (bed.patientId) {
-					return { success: false, message: "Bed is already occupied" };
+					return {
+						success: false,
+						message: "Patient is already assigned to a bed",
+					};
 				}
 
 				const patient = await Patient.findById(patientId);
@@ -112,12 +125,32 @@ const BedResolver = {
 
 		/**
 		 * Todo unassign a patient from a bed
-		 *  * Deletion logic ✅
-		 * ! Authentication for nurses (JWT verify) ❌
+		 * * Deletion logic ✅
+		 * * Authentication for nurses (JWT verify) ✅
 		 */
-		unassignPatientFromBed: async (_, { bedId }) => {
+		unassignPatientFromBed: async (_, { bedId }, context) => {
 			try {
+				const nurse = await context.verifyNurse();
+
+				const nurseDepartment = await Department.findOne({
+					nurses: { $in: nurse.id },
+				});
+
+				if (!nurseDepartment) {
+					return {
+						success: false,
+						message: "Nurse does not belong to any department",
+					};
+				}
+
 				const bed = await Bed.findById(bedId);
+
+				if (bed.departmentId != nurseDepartment.id) {
+					return {
+						success: false,
+						message: "Bed does not belong to the nurse's department",
+					};
+				}
 
 				if (!bed) {
 					return { success: false, message: "Bed not found" };
@@ -139,7 +172,7 @@ const BedResolver = {
 				return { success: false, message: `Error: ${error}` };
 			}
 		},
-    }
-}
+	},
+};
 
-export default BedResolver
+export default BedResolver;

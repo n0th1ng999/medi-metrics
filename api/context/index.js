@@ -1,23 +1,19 @@
 import { GraphQLError } from "graphql";
 import jwt from "jsonwebtoken";
+
 const context = async ({ req, res }) => {
 	return {
-		verifyToken: () => {
+		verifyNurse: async () => {
 			if (!req.headers.authorization) {
 				throw new GraphQLError("Authentication token is required");
 			}
 
-			const token = req.headers.authorization.split(" ")[1];
+			const token = req.headers.authorization;
 
-			const isValid = jwt.verify(token, "secret");
-
-			if (!isValid) {
-				throw new GraphQLError("Invalid token", {
-					code: "Unauthorized",
-					http: {
-						status: 401,
-					},
-				});
+			try {
+				jwt.verify(token, "secret");
+			} catch (error) {
+				throw new GraphQLError("Invalid or expired authentication token");
 			}
 
 			const decodedToken = jwt.decode(token, "secret");

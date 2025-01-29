@@ -123,19 +123,20 @@ const PatientResolver = {
 
         await patient.save();
 
-        pubsub.publish(
-          `CURRENT-HEALTH-RECORD-PATIENT_${patientCitizenNumber}`,
-          {
-            getCurrentHealthRecord: {
-              dateTime,
-              heartRate,
-              bloodPressure,
-              glucoseLevel,
-              clipboardLevel,
-              weight,
-            },
-          }
-        );
+        const patients = await Patient.find();
+
+        const currentHealthRecords = [];
+        patients.forEach((patient) => {
+          currentHealthRecords.push({
+            patientId: patient._id,
+            healthRecord:
+              patient.healthRecords[patient.healthRecords.length - 1],
+          });
+        });
+
+        console.log(currentHealthRecords);
+
+        pubsub.publish("CURRENT_HEALTH_RECORDS", currentHealthRecords);
 
         return { success: true, message: "Health record added" };
       } catch (error) {
@@ -170,10 +171,11 @@ const PatientResolver = {
     },
   },
   Subscription: {
-    getCurrentHealthRecord: async (_, { patientCitizenNumber }) => {
-      return pubsub.asyncIterableIterator([
-        `CURRENT-HEALTH-RECORD-PATIENT_${patientCitizenNumber}`,
-      ]);
+    currentHealthRecords: {
+      subscribe: () => pubsub.asyncIterableIterator("CURRENT_HEALTH_RECORDS"),
+      resolve: (payload) => {
+        return payload;
+      },
     },
   },
 };
