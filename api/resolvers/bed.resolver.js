@@ -1,7 +1,31 @@
 import { Department, Nurse, Bed, Patient } from "../database/index.js";
+import { graphql, GraphQLError } from "graphql";
 
 const BedResolver = {
+	// Done :chek:
 	Query: {
+		getBeds: async(_,{ departmentId, available } ) => {
+			try {
+				let beds = await Bed.find({departmentId});
+			
+				if (!beds || beds.length === 0) {
+					throw new GraphQLError("Beds not found")
+				}
+
+				if (available != undefined) {
+					if(available === true ){
+						beds = beds.filter(bed => !bed?.patientId )
+						
+					}else{
+						beds = beds.filter(bed => bed?.patientId )
+					}
+				}
+				return beds
+			} catch (error) {
+				console.log(error)
+				throw new GraphQLError("Server error")
+			}
+		}
 		/* 
         """Get Available Beds"""
         getAvailableBeds(departmentID: ID!): [Bed]

@@ -20,7 +20,7 @@ export default `#graphql
     type Bed {
         id: ID!
         location: String!
-        patientId: ID!
+        patientId: ID
         departmentId: ID!
     }
    
@@ -76,11 +76,12 @@ export default `#graphql
         """ Get Nurse information by ID"""
         getNurseById(nurseId: ID!): Nurse # ✅
 
-        """Get Available Beds"""
-        getAvailableBeds(departmentID: ID!): [Bed] # ❌
+        """Get Beds"""
+        getBeds(departmentId: ID!, available: Boolean): [Bed] #
+
 
        """ Get Patient information by ID"""
-        getPatientById(patientId: ID!): Patient # ❌
+        getPatientById(patientId: ID!): Patient # 
 
         """ Get Patient Health records """
         getPatientHealthRecords(patientId: ID!, startDate: String, endDate: String ): [HealthRecord] # ❌
