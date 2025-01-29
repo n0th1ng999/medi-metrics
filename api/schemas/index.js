@@ -50,12 +50,17 @@ export default `#graphql
         A User has multiple health records
     """
     type HealthRecord {
-        dateTime: ID!
+        dateTime: ID! #? Para quê se é preenchida de forma automática?
         heartRate: Int
         bloodPressure: BloodPressure
         glucoseLevel: Float
         cholesterolLevel: Float
         weight: Float
+    }
+
+    type PatientHealthRecord{
+        patientId: ID!
+        healthRecord: HealthRecord
     }
 
     """
@@ -153,6 +158,6 @@ export default `#graphql
     }
 
     type Subscription{
-        getCurrentHealthRecord(patientCitizenNumber: ID!): HealthRecord # 🟨
+        currentHealthRecords: [PatientHealthRecord] # ✅
     }
 `;
