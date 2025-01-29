@@ -2,7 +2,6 @@ import { Department, Nurse, Bed, Patient } from "../database/index.js";
 
 import { PubSub, withFilter } from "graphql-subscriptions";
 import { graphql, GraphQLError } from 'graphql'
-import { PubSub } from "graphql-subscriptions";
 
 const pubsub = new PubSub();
 
