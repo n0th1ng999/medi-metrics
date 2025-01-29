@@ -4,23 +4,23 @@ import jwt from "jsonwebtoken";
 import { graphql, GraphQLError } from "graphql";
 
 const NurseResolver = {
-    Query: {
-        // done :check:
-        getNurseById: async(_, {nurseId}) => {
-            try {
-                //console.log(nurseId);
-                const nurse = await Nurse.findById(nurseId); 
-                if (!nurse) {
-                    throw new GraphQLError("Nurse not found")
-                }
-                return nurse
-            } catch (error) {
-                console.log(error)
-                throw new GraphQLError("Server error")
-            }
-        }
-        
-        /**
+	Query: {
+		// done :check:
+		getNurseById: async (_, { nurseId }) => {
+			try {
+				//console.log(nurseId);
+				const nurse = await Nurse.findById(nurseId);
+				if (!nurse) {
+					throw new GraphQLError("Nurse not found");
+				}
+				return nurse;
+			} catch (error) {
+				console.log(error);
+				throw new GraphQLError("Server error");
+			}
+		},
+
+		/**
 		 * "" Get Nurse information by ID"""
         	getNurseById(nurseId: ID!): Nurse 
 		*/
@@ -117,7 +117,7 @@ const NurseResolver = {
 				if (!isValidPassword) {
 					throw new Error("Invalid password");
 				}
-			
+
 				return jwt.sign({ id: nurse.id }, "secret", { expiresIn: "1h" });
 			} catch (error) {
 				throw new Error(error.message);
