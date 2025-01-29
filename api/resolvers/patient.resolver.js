@@ -1,4 +1,6 @@
 import { Department, Nurse, Bed, Patient } from "../database/index.js";
+
+import { PubSub, withFilter } from "graphql-subscriptions";
 import { graphql, GraphQLError } from 'graphql'
 import { PubSub } from "graphql-subscriptions";
 
@@ -125,7 +127,13 @@ const PatientResolver = {
 
         const patients = await Patient.find();
 
-        const currentHealthRecords = [];
+        pubsub.publish(`CURRENT_HEALTH_RECORD`, {
+          patientId: patient.id,
+          healthRecord:
+            patient.healthRecords[patient.healthRecords.length - 1],
+        })
+
+        /* const currentHealthRecords = [];
         patients.forEach((patient) => {
           currentHealthRecords.push({
             patientId: patient._id,
@@ -136,7 +144,7 @@ const PatientResolver = {
 
         console.log(currentHealthRecords);
 
-        pubsub.publish("CURRENT_HEALTH_RECORDS", currentHealthRecords);
+        pubsub.publish("CURRENT_HEALTH_RECORD", currentHealthRecords); */
 
         return { success: true, message: "Health record added" };
       } catch (error) {
@@ -171,8 +179,21 @@ const PatientResolver = {
     },
   },
   Subscription: {
-    currentHealthRecords: {
-      subscribe: () => pubsub.asyncIterableIterator("CURRENT_HEALTH_RECORDS"),
+    currentHealthRecord: {
+      subscribe: withFilter(
+        () => pubsub.asyncIterableIterator("CURRENT_HEALTH_RECORD"),
+        (payload, variables) => {
+          console.log('-------VARIABLES---------');
+          console.log(variables);
+          console.log('-------PAYLOAD---------');
+          console.log(payload);
+          
+          if (!variables.patientId) {
+            return payload.currentHealthRecord
+          }
+          return payload.patientId === variables.patientId
+        }
+      ), 
       resolve: (payload) => {
         return payload;
       },
