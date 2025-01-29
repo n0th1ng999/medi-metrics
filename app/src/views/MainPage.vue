@@ -7,21 +7,62 @@ import { usePatientStore } from "../stores/patient";
   <h1>Hello, JOHN DOE!!!</h1>
   <h2>Patients</h2>
   <div class="d-flex flex-wrap">
-    <PatientCard v-for="patient in patients" v-bind:key="patient.id" :name="'John Doe'" :id="patient.id" :heartRate="patient.heartRate[patient.heartRate.length -1]" :glycemicLevels="patient.glycemicLevels[patient.glycemicLevels.length -1]" :arterialPressure="patient.arterialPressure[patient.arterialPressure.length -1]" :bodyTemperature="patient.bodyTemperature[patient.bodyTemperature.length -1]" :respiratoryRate="patient.respiratoryRate[patient.respiratoryRate.length -1]" :oxygenSaturation="patient.oxygenSaturation[patient.oxygenSaturation.length -1]"/>
+    <PatientCard
+      v-for="patient in patients"
+      v-bind:key="patient.id"
+      :name="'John Doe'"
+      :id="patient.id"
+      :heartRate="patient.heartRate[patient.heartRate.length - 1]"
+      :glycemicLevels="
+        patient.glycemicLevels[patient.glycemicLevels.length - 1]
+      "
+      :arterialPressure="
+        patient.arterialPressure[patient.arterialPressure.length - 1]
+      "
+      :bodyTemperature="
+        patient.bodyTemperature[patient.bodyTemperature.length - 1]
+      "
+      :respiratoryRate="
+        patient.respiratoryRate[patient.respiratoryRate.length - 1]
+      "
+      :oxygenSaturation="
+        patient.oxygenSaturation[patient.oxygenSaturation.length - 1]
+      "
+    />
   </div>
 </template>
 
 <script lang="ts">
+import gql from "graphql-tag";
+
 export default {
+  apollo: {
+    getNurseById: {
+      query: gql`
+        query GetNurseById($nurseId: ID!) {
+          getNurseById(nurseId: $nurseId) {
+            citizenCardNumber
+            name
+            email
+            password
+          }
+        }
+      `,
+      variables: {
+        nurseId: ''
+      }
+    },
+    
+  },
   data() {
     return {
-      patientStore: usePatientStore()
-    }
+      patientStore: usePatientStore(),
+    };
   },
   computed: {
     patients() {
-      return this.patientStore.getEvery 
-    }
+      return this.patientStore.getEvery;
+    },
   },
 };
 </script>
