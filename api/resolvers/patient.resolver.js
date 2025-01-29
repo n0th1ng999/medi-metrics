@@ -1,11 +1,26 @@
 import { Department, Nurse, Bed, Patient } from "../database/index.js";
 
 import { PubSub, withFilter } from "graphql-subscriptions";
+import { graphql, GraphQLError } from 'graphql'
+import { PubSub } from "graphql-subscriptions";
 
 const pubsub = new PubSub();
 
 const PatientResolver = {
   Query: {
+
+        getPatientById: async(_, {patientId}) => {
+          try {
+            const patient = await Patient.findById(patientId);
+            if (!patient) {
+              throw new GraphQLError("Patient not found")
+            }
+            return patient
+          } catch (error) {
+            console.log(error)
+            throw new GraphQLError("Server error")
+          }
+        }
     /* 
         """ Get Patient information by ID"""
         getPatientById(patientId: ID!): Patient
