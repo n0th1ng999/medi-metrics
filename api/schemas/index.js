@@ -159,6 +159,6 @@ export default `#graphql
     }
 
     type Subscription{
-        currentHealthRecords: [PatientHealthRecord] # ✅
+        currentHealthRecord(patientId: ID): PatientHealthRecord # ✅
     }
 `;
