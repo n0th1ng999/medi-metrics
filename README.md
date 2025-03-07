@@ -10,4 +10,5 @@ Criar ficheiro .env dentro da pasta `/api` com o conteúdo:
 ```dosini
 CON_STRING_MONGODB="<uri-mongodb-example>"
 ```
-## Estrutura de ficheiros
+## Explicação do projeto & Conteúdo Desenvolvido
+**Link da apresentação:** <a href="https://ipppt-my.sharepoint.com/:p:/g/personal/40210190_esmad_ipp_pt/EdDh5ihYNyJEtSuHMaw1ohQB42Xazs6ZTqP7tPpcg93Gig?e=M9GlnB">Apresentação</a>
